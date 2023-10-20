@@ -37,7 +37,7 @@ func (s *server) Scrape(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: check for cache hit (check if cache is disabled first)
+	// TODO: check for cache hit (check if cache is disabled first, or if forceRefresh is set)
 
 	// on cache miss, get meta tags
 	tags, err := metaparser.GetMetaTags(req.URL)
