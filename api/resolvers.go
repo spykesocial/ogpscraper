@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -34,6 +35,7 @@ func (s *server) Scrape(w http.ResponseWriter, r *http.Request) {
 	var req ScrapeRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "require `url`, `forceRefresh` & `raw`", http.StatusBadRequest)
+		log.Println("s.Scrape:38", err)
 		return
 	}
 
@@ -43,6 +45,7 @@ func (s *server) Scrape(w http.ResponseWriter, r *http.Request) {
 	tags, err := metaparser.GetMetaTags(req.URL)
 	if err != nil {
 		http.Error(w, "could not get meta tags for page", http.StatusFailedDependency)
+		log.Println("s.Scrape:48", err)
 		return
 	}
 
@@ -54,11 +57,13 @@ func (s *server) Scrape(w http.ResponseWriter, r *http.Request) {
 		result := opengraph.GetOGPResult(tags)
 		if err := json.NewEncoder(w).Encode(result); err != nil {
 			http.Error(w, "could not encode result", http.StatusInternalServerError)
+			log.Println("s.Scrape:60", err)
 			return
 		}
 	} else {
 		if err := json.NewEncoder(w).Encode(tags); err != nil {
 			http.Error(w, "could not encode result", http.StatusInternalServerError)
+			log.Println("s.Scrape:66", err)
 			return
 		}
 	}
