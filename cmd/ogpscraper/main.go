@@ -37,7 +37,7 @@ func main() {
 	log.Printf("Port: %v, cache_disable: %v, cache_ttl: %v, redis_config: %+v", port, cache_disable, cache_ttl, rc)
 
 	// create new server
-	addr := fmt.Sprintf("0.0.0.0:%v", port)
+	addr := fmt.Sprintf("0.0.0.0:%v", *port)
 	server := &http.Server{
 		Addr:    addr,
 		Handler: api.NewServer(rc, *cache_disable, *cache_ttl),
