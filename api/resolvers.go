@@ -32,7 +32,7 @@ type ScrapeRequest struct {
 
 func (s *server) Scrape(w http.ResponseWriter, r *http.Request) {
 	var req ScrapeRequest
-	if err := json.NewDecoder(r.Body); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "require `url`, `forceRefresh` & `raw`", http.StatusBadRequest)
 		return
 	}
