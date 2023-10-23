@@ -21,7 +21,10 @@ func GetMetaTags(addr string) ([]MetaTag, error) {
 	}
 
 	// start collecting meta tags on cache miss
-	c := colly.NewCollector()
+	c := colly.NewCollector(
+		// simulating Mozilla firefox for now
+		colly.UserAgent("Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/118.0"),
+	)
 	c.OnHTML("meta", func(e *colly.HTMLElement) {
 		t := MetaTag{}
 		if e.Attr("property") != "" {
