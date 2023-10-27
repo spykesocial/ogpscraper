@@ -9,6 +9,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-redis/redis/v8"
 	"github.com/yashdiniz/ogpscraper/internal/metaparser"
+	"github.com/yashdiniz/ogpscraper/internal/noembed"
 	"github.com/yashdiniz/ogpscraper/internal/opengraph"
 )
 
@@ -45,9 +46,24 @@ func (s *server) Scrape(w http.ResponseWriter, r *http.Request) {
 	// on cache miss, get meta tags
 	tags, err := metaparser.GetMetaTags(req.URL)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("could not get meta tags for page: %v", err.Error()), http.StatusFailedDependency)
-		log.Println("s.Scrape:48", req.URL, err)
-		return
+		// check noembed
+		if req.Raw {
+			http.Error(w, "`raw` is temporarily not supported", http.StatusFailedDependency)
+			log.Println("s.Scrape:50", req.URL, err)
+			return
+		}
+		result, err := noembed.GetNoembedData(req.URL)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("could not get metadata tags for page: %v", err.Error()), http.StatusFailedDependency)
+			log.Println("s.Scrape:58", req.URL, err)
+			return
+		}
+		log.Println("returning noembed data instead")
+		if err := json.NewEncoder(w).Encode(result); err != nil {
+			http.Error(w, "could not encode result", http.StatusInternalServerError)
+			log.Println("s.Scrape:60", err)
+			return
+		}
 	}
 
 	// TODO: cache the results (with ttl of course)
