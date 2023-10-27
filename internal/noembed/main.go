@@ -9,6 +9,8 @@ import (
 	"github.com/yashdiniz/ogpscraper/internal/opengraph"
 )
 
+// REFERENCE: https://noembed.com/
+
 // GetNoembedData calls noembed.com to get the required oembed data, and casts it into an opengraph result
 func GetNoembedData(u string) (*opengraph.Result, error) {
 	f := url.QueryEscape(u) // safely escape the URL for adding to query
