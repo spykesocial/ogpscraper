@@ -19,7 +19,7 @@ func GetNoembedData(u string) (*opengraph.Result, error) {
 		return nil, err
 	}
 
-	var r map[string]string
+	var r map[string]interface{}
 	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
 		return nil, err
 	}
@@ -28,13 +28,13 @@ func GetNoembedData(u string) (*opengraph.Result, error) {
 	for key, val := range r {
 		switch key {
 		case "url":
-			result.Url = val
+			result.Url = val.(string)
 		case "title":
-			result.Title = val
+			result.Title = val.(string)
 		case "provider_name":
-			result.Description = val
+			result.Description = val.(string)
 		case "thumbnail_url":
-			result.Image = val
+			result.Image = val.(string)
 		}
 	}
 	result.Type = "website"

@@ -46,7 +46,7 @@ func (s *server) Scrape(w http.ResponseWriter, r *http.Request) {
 	// on cache miss, get meta tags
 	tags, err := metaparser.GetMetaTags(req.URL)
 	if err != nil {
-		// check noembed
+		// check noembed if colly panics and can't get ogp
 		if req.Raw {
 			http.Error(w, "`raw` is temporarily not supported", http.StatusFailedDependency)
 			log.Println("s.Scrape:50", req.URL, err)
