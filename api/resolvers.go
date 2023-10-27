@@ -37,50 +37,51 @@ func (s *server) Scrape(w http.ResponseWriter, r *http.Request) {
 	var req ScrapeRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "require `url`, `forceRefresh` & `raw`", http.StatusBadRequest)
-		log.Println("s.Scrape:38", err)
+		log.Println("s.Scrape:40", err)
 		return
 	}
 
 	// TODO: check for cache hit (check if cache is disabled first, or if forceRefresh is set)
 
+	w.Header().Add("Content-Type", "application/json")
 	// on cache miss, get meta tags
 	tags, err := metaparser.GetMetaTags(req.URL)
 	if err != nil {
 		// check noembed if colly panics and can't get ogp
 		if req.Raw {
 			http.Error(w, "`raw` is temporarily not supported", http.StatusFailedDependency)
-			log.Println("s.Scrape:50", req.URL, err)
+			log.Println("s.Scrape:53", req.URL, err)
 			return
 		}
 		result, err := noembed.GetNoembedData(req.URL)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("could not get metadata tags for page: %v", err.Error()), http.StatusFailedDependency)
-			log.Println("s.Scrape:58", req.URL, err)
+			log.Println("s.Scrape:59", req.URL, err)
 			return
 		}
 		log.Println("returning noembed data instead")
 		if err := json.NewEncoder(w).Encode(result); err != nil {
 			http.Error(w, "could not encode result", http.StatusInternalServerError)
-			log.Println("s.Scrape:60", err)
+			log.Println("s.Scrape:65", err)
 			return
 		}
+		return // return early since we have already sent a response
 	}
 
 	// TODO: cache the results (with ttl of course)
 
-	w.Header().Add("Content-Type", "application/json")
 	// if client doesn't want raw results
 	if !req.Raw {
 		result := opengraph.GetOGPResult(tags)
 		if err := json.NewEncoder(w).Encode(result); err != nil {
 			http.Error(w, "could not encode result", http.StatusInternalServerError)
-			log.Println("s.Scrape:60", err)
+			log.Println("s.Scrape:78", err)
 			return
 		}
 	} else {
 		if err := json.NewEncoder(w).Encode(tags); err != nil {
 			http.Error(w, "could not encode result", http.StatusInternalServerError)
-			log.Println("s.Scrape:66", err)
+			log.Println("s.Scrape:84", err)
 			return
 		}
 	}
