@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -44,8 +45,8 @@ func (s *server) Scrape(w http.ResponseWriter, r *http.Request) {
 	// on cache miss, get meta tags
 	tags, err := metaparser.GetMetaTags(req.URL)
 	if err != nil {
-		http.Error(w, "could not get meta tags for page", http.StatusFailedDependency)
-		log.Println("s.Scrape:48", err)
+		http.Error(w, fmt.Sprintf("could not get meta tags for page: %v", err.Error()), http.StatusFailedDependency)
+		log.Println("s.Scrape:48", req.URL, err)
 		return
 	}
 
